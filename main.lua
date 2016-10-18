@@ -10,6 +10,7 @@ function love.load()
 	debug = true
 	play = true
 	win = false
+	level = { num = 1, x = 50, y = 50 }
 	fullscreen = false
 	love.window.setFullscreen(fullscreen)
 	love.window.setTitle('Alunizaje')
@@ -22,11 +23,11 @@ function love.load()
   	world = love.physics.newWorld(0, gravity * 64, true) -- Make earth
   	-- Ship
   	ship = { x = canvas.width / 2, y = 0 , power = 100 }
-  	ship.body = love.physics.newBody(world, ship.x, ship.y, "dynamic")
+  	ship.img = love.graphics.newImage('assets/img/ship.png')
+  	ship.body = love.physics.newBody(world, (canvas.width / 2) - (ship.img:getWidth() / 2) , ship.y, "dynamic")
   	ship.shape = love.physics.newCircleShape(20) 
   	ship.fixture = love.physics.newFixture(ship.body, ship.shape, 1)
   	ship.fixture:setRestitution(0.9)
-  	ship.img = love.graphics.newImage('assets/img/ship.png')
 	-- Generates initial asteroids
 	num_asteroids = 50
 	max_speed_asteroids = 5
@@ -157,6 +158,7 @@ function love.draw()
 	if not play and win then -- Win
 		love.graphics.print('You win!', (camera.width / 2), -camera.y + (camera.height / 2))
 	end
+	love.graphics.print('Level ' .. level.num, level.x, level.y + -camera.y)
 end
 
 ---------------------------------  Functions
