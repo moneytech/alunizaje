@@ -22,28 +22,31 @@ function love.load()
 	love.physics.setMeter(64) -- Height earth in meters
   	world = love.physics.newWorld(0, gravity * 64, true) -- Make earth
   	-- Ship
-  	ship = { x = canvas.width / 2, y = 0 , power = 100 }
+  	ship = { x = canvas.width / 2, y = 0 , power = 100 , size_collition = 28, polygons_collition = 8 }
   	ship.img = love.graphics.newImage('assets/img/ship.png')
   	ship.body = love.physics.newBody(world, (canvas.width / 2) - (ship.img:getWidth() / 2) , ship.y, "dynamic")
   	ship.shape = love.physics.newCircleShape(20) 
   	ship.fixture = love.physics.newFixture(ship.body, ship.shape, 1)
   	ship.fixture:setRestitution(0.9)
 	-- Generates initial asteroids
-	num_asteroids = 50
+	asteroids_collision = 40
+	asteroids_collision_polygon = 8
+	num_asteroids = 5
 	max_speed_asteroids = 5
 	img_asteroide = {
 		love.graphics.newImage('assets/img/asteroid1.png'), 
-		love.graphics.newImage('assets/img/asteroid2.png'),
-		love.graphics.newImage('assets/img/asteroid3.png')
+		love.graphics.newImage('assets/img/asteroid2.png')
 	}
 	asteroids = {}
 	for i=1, num_asteroids do
-		temp_img = img_asteroide[math.random(1, table_length(img_asteroide))]
-		asteroids[i] = { x = math.random(0, canvas.width - temp_img:getWidth()), 
-		y = math.random(200, canvas.height - temp_img:getHeight()), 
-		speed = math.random(1, max_speed_asteroids), 
-		img = temp_img,
-		angle = math.random(0, 90)}
+		local temp_img = img_asteroide[math.random(1, table_length(img_asteroide))]
+		asteroids[i] = { 
+			x = math.random(0, canvas.width - temp_img:getWidth()), 
+			y = math.random(200, canvas.height - temp_img:getHeight()), 
+			speed = math.random(1, max_speed_asteroids), 
+			img = temp_img,
+			angle = math.random(0, 90)
+		}
 	end
 end
 
@@ -52,12 +55,10 @@ function love.update(dt)
 	if play then
 		-- Phytics world
 		world:update(dt)
-
 		-- Controls
 		if love.keyboard.isDown('escape') or love.keyboard.isDown('q') then
 			love.event.push('quit')
 		end
-
 		if love.keyboard.isDown("right") then 
 	    	ship.body:applyForce(ship.power, 0)
 	  	elseif love.keyboard.isDown("left") then 
@@ -71,11 +72,9 @@ function love.update(dt)
 
 		-- Rotate asteroids 
 		for key, value in pairs(asteroids) do
-			-- Rota
 			value.angle = asteroids[key].angle + (dt * math.pi / 10)
 			value.x = asteroids[key].x - asteroids[key].speed
 		end
-
 		-- Destroy asteroids
 		for key, value in pairs(asteroids) do
 			if value.x + asteroids[key].img:getWidth() < 0 then
@@ -85,7 +84,7 @@ function love.update(dt)
 
 		-- Create asteroids
 		if table_length(asteroids) < num_asteroids then
-			temp_img = img_asteroide[math.random(1, table_length(img_asteroide))]
+			local temp_img = img_asteroide[math.random(1, table_length(img_asteroide))]
 			asteroids[table_length(asteroids) + 1] = { 
 			x = canvas.width + temp_img:getWidth(), 
 			y = math.random(0, canvas.height - temp_img:getHeight()), 
@@ -123,7 +122,17 @@ function love.update(dt)
 		end
 
 		for key, value in pairs(asteroids) do -- Asteroids
-			if CheckCollision(asteroids[key].x - (asteroids[key].img:getWidth() / 2), asteroids[key].y - (asteroids[key].img:getHeight() / 2), asteroids[key].img:getWidth(), asteroids[key].img:getHeight(), ship.body:getX(), ship.body:getY(), ship.img:getWidth(), ship.img:getHeight()) then
+			local asteroid_temp = {
+				x = asteroids[key].x,
+				y = asteroids[key].y,
+				radius = asteroids_collision	
+			}
+			local ship_temp = {
+				x = ship.body:getX() + (ship.img:getWidth() / 2),
+				y = ship.body:getY() + (ship.img:getHeight() / 2),
+				radius = ship.size_collition
+			}
+			if checkCircleCollision(asteroid_temp, ship_temp) then
 				play = false
 			end
 		end
@@ -143,13 +152,13 @@ function love.draw()
 	for key, value in pairs(asteroids) do
 		love.graphics.draw(value.img, value.x, value.y, value.angle, 1, 1, value.img:getWidth() / 2, value.img:getHeight() / 2)
 		if debug then
-			love.graphics.rectangle("line", value.x - (value.img:getWidth() / 2), value.y - (value.img:getHeight() / 2), value.img:getWidth(), value.img:getHeight())
+			love.graphics.circle("line", value.x, value.y, asteroids_collision, ship.polygons_collition)
 		end
 	end
 	-- Ship
 	love.graphics.draw(ship.img, ship.body:getX(), ship.body:getY())
 	if debug then
-		love.graphics.rectangle("line", ship.body:getX(), ship.body:getY(), ship.img:getWidth(), ship.img:getHeight())
+		love.graphics.circle("line", ship.body:getX() + (ship.img:getWidth() / 2), ship.body:getY() + (ship.img:getHeight() / 2), ship.size_collition, ship.polygons_collition)
 	end
 	-- Texts
 	if not play and not win then -- Game over
@@ -177,12 +186,7 @@ function sleep(n)  -- seconds
 end
 
 -- Collision detection function.
--- Returns true if two boxes overlap, false if they don't
--- x1,y1 are the left-top coords of the first box, while w1,h1 are its width and height
--- x2,y2,w2 & h2 are the same, but for the second box
-function CheckCollision(x1,y1,w1,h1, x2,y2,w2,h2)
-  return x1 < x2+w2 and
-         x2 < x1+w1 and
-         y1 < y2+h2 and
-         y2 < y1+h1
+function checkCircleCollision(circle1, circle2)
+	local distance = math.sqrt((circle1.x - circle2.x) ^ 2 + (circle1.y - circle2.y) ^ 2)
+	return distance <= circle1.radius + circle2.radius
 end
