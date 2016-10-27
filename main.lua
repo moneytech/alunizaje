@@ -5,20 +5,20 @@ function love.load()
 	window = { width = 1280, height = 720 }
 	fullscreen = false
 	love.window.setMode(window.width, window.height, {resizable=false})
-	font = love.graphics.newFont('assets/font/space_age.ttf', 40) -- Font
-	love.graphics.setFont(font)
-	text_restart = { text = 'You die!' }
-	text_restart.size = font:getWidth(text_restart.text)
+	font_main = love.graphics.newFont('assets/font/main.ttf', 80) -- Font
+	love.graphics.setFont(font_main)
+	text_restart = { text = 'You die' }
+	text_restart.size = font_main:getWidth(text_restart.text)
 	text_good = { text = 'Good' }
-	text_good.size = font:getWidth(text_good.text)
+	text_good.size = font_main:getWidth(text_good.text)
 	camera = { x = 0, y = 0, width = window.width, height = window.height }
 	debug = false
 	play = true
 	win = false
-	level = { num = 1, x = 50, y = 50 }
-	love.window.setFullscreen(fullscreen)
+	level = { num = 1, x = 50, y = 50, max = 20 }
+	love.window.setFullscreen(fullscreen, 'exclusive')
 	love.window.setTitle('Alunizaje')
-	background = { x = 0, y = 0, img = love.graphics.newImage('assets/img/background.jpg') }
+	background = { x = 0, y = 0, img = love.graphics.newImage('assets/img/background.png') }
 	canvas = { width = 1280, height = 2880 }
 	gravity = 2
 	moon_margin = 100
@@ -32,37 +32,115 @@ function love.load()
   	ship.shape = love.physics.newCircleShape(20) 
   	ship.fixture = love.physics.newFixture(ship.body, ship.shape, 1)
   	ship.fixture:setRestitution(0.9)
+  	-- Fire
+  	fire = {}
+  	fire.img = love.graphics.newImage('assets/sprite/fire.png')
+  	fire.num_frames = 4
+  	fire.pos_frame = 0
+  	fire.visible = false
+  	fire.distance_ship = 10 
+  	fire.frame_width = fire.img:getWidth() / fire.num_frames
+  	fire.frames = {
+                 love.graphics.newQuad(fire.frame_width * 0, 0, fire.frame_width, fire.frame_width, fire.img:getWidth(), fire.img:getHeight()),
+                 love.graphics.newQuad(fire.frame_width * 1, 0, fire.frame_width, fire.frame_width, fire.img:getWidth(), fire.img:getHeight()),
+                 love.graphics.newQuad(fire.frame_width * 2, 0, fire.frame_width, fire.frame_width, fire.img:getWidth(), fire.img:getHeight()),
+                 love.graphics.newQuad(fire.frame_width * 3, 0, fire.frame_width, fire.frame_width, fire.img:getWidth(), fire.img:getHeight())
+             }
+    -- Explosion
+  	explosion = {}
+  	explosion.img = love.graphics.newImage('assets/sprite/explosion.png')
+  	explosion.num_frames = 11 
+  	explosion.pos_frame = 1
+  	explosion.active = false
+  	explosion.finish = false
+  	explosion.time = 0
+  	explosion.speed = 0.05
+  	explosion.frame_width = explosion.img:getWidth() / explosion.num_frames
+  	explosion.frame_height = explosion.img:getHeight()
+  	explosion.frames = {
+                 love.graphics.newQuad(explosion.frame_width * 0, 0, explosion.frame_width, explosion.frame_height, explosion.img:getWidth(), explosion.img:getHeight()),
+                 love.graphics.newQuad(explosion.frame_width * 1, 0, explosion.frame_width, explosion.frame_height, explosion.img:getWidth(), explosion.img:getHeight()),
+                 love.graphics.newQuad(explosion.frame_width * 2, 0, explosion.frame_width, explosion.frame_height, explosion.img:getWidth(), explosion.img:getHeight()),
+                 love.graphics.newQuad(explosion.frame_width * 3, 0, explosion.frame_width, explosion.frame_height, explosion.img:getWidth(), explosion.img:getHeight()),
+                 love.graphics.newQuad(explosion.frame_width * 4, 0, explosion.frame_width, explosion.frame_height, explosion.img:getWidth(), explosion.img:getHeight()),
+                 love.graphics.newQuad(explosion.frame_width * 5, 0, explosion.frame_width, explosion.frame_height, explosion.img:getWidth(), explosion.img:getHeight()),
+                 love.graphics.newQuad(explosion.frame_width * 6, 0, explosion.frame_width, explosion.frame_height, explosion.img:getWidth(), explosion.img:getHeight()),
+                 love.graphics.newQuad(explosion.frame_width * 7, 0, explosion.frame_width, explosion.frame_height, explosion.img:getWidth(), explosion.img:getHeight()),
+                 love.graphics.newQuad(explosion.frame_width * 8, 0, explosion.frame_width, explosion.frame_height, explosion.img:getWidth(), explosion.img:getHeight()),
+                 love.graphics.newQuad(explosion.frame_width * 9, 0, explosion.frame_width, explosion.frame_height, explosion.img:getWidth(), explosion.img:getHeight()),
+                 love.graphics.newQuad(explosion.frame_width * 10, 0, explosion.frame_width, explosion.frame_height, explosion.img:getWidth(), explosion.img:getHeight())
+             }
 	-- Generates initial asteroids
 	asteroids_collision = 40
 	asteroids_collision_polygon = 8
 	max_speed_asteroids = 5
 	img_asteroide = {
 		love.graphics.newImage('assets/img/asteroid1.png'), 
-		love.graphics.newImage('assets/img/asteroid2.png')
+		love.graphics.newImage('assets/img/asteroid2.png'),
+		love.graphics.newImage('assets/img/asteroid3.png')
 	}
+	-- Audios
+	sounds = {}
+	sounds.die = love.audio.newSource('assets/audio/sound/die.wav', 'static')	
+	sounds.explosion = love.audio.newSource('assets/audio/sound/explosion_bit.wav', 'static')	
+	sounds.ambient_1 = love.audio.newSource('assets/audio/sound/ambient_1.wav')	
+	sounds.complete = love.audio.newSource('assets/audio/sound/complete.wav')	
+	sounds.fire = love.audio.newSource('assets/audio/sound/fire.wav', 'static')	
+	sounds.ambient_1:setLooping(true)
+	sounds.ambient_1:play()
+
 	restart(level.num)
 end
 
 -- UPDATE
 function love.update(dt)
+	-- Sprite
+	if not explosion.finish and explosion.active then -- Explosion
+		explosion.time = explosion.time + dt
+		if explosion.time > explosion.speed then
+			explosion.pos_frame = explosion.pos_frame + 1
+			explosion.time = 0
+		end
+		if explosion.pos_frame > explosion.num_frames then
+			sleep(1)
+			restart(level.num)
+		end
+	end
+	-- Restart
+	if not explosion.active and not play then
+		sleep(3)
+		restart(level.num)
+	end
 	if play then
 		-- Phytics world
 		world:update(dt)
+		-- Sprite
+	    fire.visible = false
+		if fire.pos_frame < fire.num_frames then -- Fire
+			fire.pos_frame = fire.pos_frame + 1
+		else
+			fire.pos_frame = 1
+		end
 		-- Controls
 		if love.keyboard.isDown('escape') or love.keyboard.isDown('q') then
 			love.event.push('quit')
 		end
 		if love.keyboard.isDown('right') then 
 	    	ship.body:applyForce(ship.power, 0)
+	    	fire.visible = true
+	    	sounds.fire:play()
 	  	elseif love.keyboard.isDown('left') then 
 	    	ship.body:applyForce(-ship.power, 0)
+	    	fire.visible = true
+	    	sounds.fire:play()
 	  	end
 	  	if love.keyboard.isDown('up') then 
 	    	ship.body:applyForce(0, -ship.power)
+	    	fire.visible = true
+	    	sounds.fire:play()
 	  	elseif love.keyboard.isDown('down') then 
 	    	ship.body:applyForce(0, ship.power)
 	  	end
-
 		-- Rotate asteroids 
 		for key, value in pairs(asteroids) do
 			value.angle = asteroids[key].angle + (dt * math.pi / 10)
@@ -74,7 +152,6 @@ function love.update(dt)
 				table.remove(asteroids, key)
 			end
 		end
-
 		-- Create asteroids
 		if table_length(asteroids) < num_asteroids then
 			local temp_img = img_asteroide[math.random(1, table_length(img_asteroide))]
@@ -113,6 +190,7 @@ function love.update(dt)
 			win = true
 			play = false
 			level.num = level.num + 1
+			sounds.complete:play()
 		end
 
 		for key, value in pairs(asteroids) do -- Asteroids
@@ -128,11 +206,11 @@ function love.update(dt)
 			}
 			if checkCircleCollision(asteroid_temp, ship_temp) then
 				play = false
+				sounds.die:play()
+				sounds.explosion:play()
+				explosion.active = true
 			end
 		end
-	else
-		sleep(2)
-		restart(level.num)
 	end
 end
 
@@ -142,6 +220,17 @@ function love.draw()
   	love.graphics.translate(0, camera.y)
 	-- Background
 	love.graphics.draw(background.img, background.x, background.y)
+	-- Ship
+	if not explosion.active then
+		love.graphics.draw(ship.img, ship.body:getX(), ship.body:getY())
+		if debug then
+			love.graphics.circle('line', ship.body:getX() + (ship.img:getWidth() / 2), ship.body:getY() + (ship.img:getHeight() / 2), ship.size_collition, ship.polygons_collition)
+		end
+	end
+	-- Fire
+	if fire.visible and not explosion.active then
+		love.graphics.draw(fire.img, fire.frames[fire.pos_frame], ship.body:getX(), ship.body:getY() + ship.img:getHeight() + fire.distance_ship)
+	end
 	-- Asteroids
 	for key, value in pairs(asteroids) do
 		love.graphics.draw(value.img, value.x, value.y, value.angle, 1, 1, value.img:getWidth() / 2, value.img:getHeight() / 2)
@@ -149,10 +238,9 @@ function love.draw()
 			love.graphics.circle('line', value.x, value.y, asteroids_collision, ship.polygons_collition)
 		end
 	end
-	-- Ship
-	love.graphics.draw(ship.img, ship.body:getX(), ship.body:getY())
-	if debug then
-		love.graphics.circle('line', ship.body:getX() + (ship.img:getWidth() / 2), ship.body:getY() + (ship.img:getHeight() / 2), ship.size_collition, ship.polygons_collition)
+	-- Explosion
+	if explosion.active then
+		love.graphics.draw(explosion.img, explosion.frames[explosion.pos_frame], ship.body:getX(), ship.body:getY() + ship.img:getHeight() / 2)
 	end
 	-- Texts
 	if not play and not win then -- Game over
@@ -187,6 +275,8 @@ end
 
 function restart(level_arg)
 	num_asteroids = level_arg * 5
+	explosion.pos_frame = 1
+	explosion.active = false
 	-- Generate asteroids
 	asteroids = {}
 	for i=1, num_asteroids do
@@ -203,4 +293,9 @@ function restart(level_arg)
   	ship.body = love.physics.newBody(world, (canvas.width / 2) - (ship.img:getWidth() / 2) , ship.y, 'dynamic')
 	win = false
 	play = true
+end
+
+-- Controls
+function love.keyreleased(key)
+	sounds.fire:stop()
 end
