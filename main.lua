@@ -2,9 +2,10 @@
 function love.load()
 	-- Configuration
 	math.randomseed(os.time())
-	window = { width = 1280, height = 720 }
+	width, height = love.window.getDesktopDimensions( display )
+	window = { width = width , height = height }
 	fullscreen = false
-	love.window.setMode(window.width, window.height, {resizable=false})
+	love.window.setMode(window.width, window.height, {resizable=true})
 	font_main = love.graphics.newFont('assets/font/main.ttf', 80) -- Font
 	love.graphics.setFont(font_main)
 	text_restart = { text = 'You die' }
@@ -19,7 +20,7 @@ function love.load()
 	love.window.setFullscreen(fullscreen, 'exclusive')
 	love.window.setTitle('Alunizaje')
 	background = { x = 0, y = 0, img = love.graphics.newImage('assets/img/background.png') }
-	canvas = { width = 1280, height = 2880 }
+	canvas = { width = width, height = 2880 }
 	gravity = 2
 	moon_margin = 100
 	-- Physics
@@ -138,8 +139,6 @@ function love.update(dt)
 	    	ship.body:applyForce(0, -ship.power)
 	    	fire.visible = true
 	    	sounds.fire:play()
-	  	elseif love.keyboard.isDown('down') then 
-	    	ship.body:applyForce(0, ship.power)
 	  	end
 		-- Rotate asteroids 
 		for key, value in pairs(asteroids) do
@@ -157,7 +156,7 @@ function love.update(dt)
 			local temp_img = img_asteroide[math.random(1, table_length(img_asteroide))]
 			asteroids[table_length(asteroids) + 1] = { 
 			x = canvas.width + temp_img:getWidth(), 
-			y = math.random(0, canvas.height - temp_img:getHeight()), 
+			y = math.random(window.height / 2, canvas.height - temp_img:getHeight()), 
 			speed = math.random(1, max_speed_asteroids), 
 			img = temp_img,
 			angle = math.random(0, 90)}
@@ -219,7 +218,7 @@ function love.draw()
 	-- Camera
   	love.graphics.translate(0, camera.y)
 	-- Background
-	love.graphics.draw(background.img, background.x, background.y)
+	love.graphics.draw(background.img, background.x, background.y, 0, 2, 1)
 	-- Ship
 	if not explosion.active then
 		love.graphics.draw(ship.img, ship.body:getX(), ship.body:getY())
