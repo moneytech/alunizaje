@@ -71,6 +71,21 @@ function love.load()
                  love.graphics.newQuad(explosion.frame_width * 9, 0, explosion.frame_width, explosion.frame_height, explosion.img:getWidth(), explosion.img:getHeight()),
                  love.graphics.newQuad(explosion.frame_width * 10, 0, explosion.frame_width, explosion.frame_height, explosion.img:getWidth(), explosion.img:getHeight())
              }
+
+	-- Button
+	control_up, control_right, control_left, control_quit = false, false, false, false
+  	button = {}
+  	button.img = love.graphics.newImage('assets/sprite/button.png')
+  	button.num_frames = 2
+  	button.frame_width = button.img:getWidth() / button.num_frames
+  	button.frame_height = button.img:getHeight()
+  	button.frames = {
+                 love.graphics.newQuad(button.frame_width * 0, 0, button.frame_width, button.frame_height, button.img:getWidth(), button.img:getHeight()),
+                 love.graphics.newQuad(button.frame_width * 1, 0, button.frame_width, button.frame_height, button.img:getWidth(), button.img:getHeight())
+             }
+    button_up = {}
+    button_up.x = window.width - button.img:getWidth()
+    button_up.y = level.y + (camera.height / 4) + -camera.y
 	-- Generates initial asteroids
 	asteroids_collision = 40
 	asteroids_collision_polygon = 8
@@ -123,7 +138,7 @@ function love.update(dt)
 			fire.pos_frame = 1
 		end
 		-- Controls
-		local control_up, control_right, control_left, control_quit = false, false, false, false
+		control_up, control_right, control_left, control_quit = false, false, false, false
 			-- Keyboard
 		if love.keyboard.isDown('escape') or love.keyboard.isDown('q') then
 			control_quit = true
@@ -140,15 +155,8 @@ function love.update(dt)
 		if love.mouse.isDown(1) then
 			local x, y = love.mouse.getPosition()
 			-- Up
-			if x > width / 3 and x < width - (width / 3) and y < height / 3 then
+			if x > button_up.x and x < button_up.x + button.img:getWidth() and y > button_up.y + camera.y and y < button_up.y + button.img:getHeight() + camera.y then
 	  			control_up = true
-			end
-			-- Left
-			if x < width / 3 then
-	    		control_left = true
-			elseif x > width - (width / 3) then
-				-- Right	
-				control_right = true
 			end
 		end
 		-- Ship move
@@ -270,6 +278,14 @@ function love.draw()
 	if explosion.active then
 		love.graphics.draw(explosion.img, explosion.frames[explosion.pos_frame], ship.body:getX(), ship.body:getY() + ship.img:getHeight() / 2)
 	end
+	-- Controls
+		-- Up
+    button_up.y = level.y + (camera.height / 4) + -camera.y
+	local button_frame_up = button.frames[1]
+	if control_up then
+		button_frame_up = button.frames[2]
+	end
+	love.graphics.draw(button.img, button_frame_up, button_up.x, button_up.y)
 	-- Texts
 	if not play and not win then -- Game over
 		love.graphics.print(text_restart.text, (camera.width / 2) - (text_restart.size / 2), -camera.y + (camera.height / 2))
@@ -277,7 +293,7 @@ function love.draw()
 	if not play and win then -- Win
 		love.graphics.print(text_good, (camera.width / 2) - (text_good.size / 2), -camera.y + (camera.height / 2))
 	end
-	love.graphics.print('Level ' .. level.num, level.x, level.y + -camera.y)
+	love.graphics.print('Level ' .. level.num, level.x, level.y + -camera.y) -- Score
 end
 
 ---------------------------------  Functions
