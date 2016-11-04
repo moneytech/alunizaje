@@ -123,43 +123,51 @@ function love.update(dt)
 			fire.pos_frame = 1
 		end
 		-- Controls
+		local control_up, control_right, control_left, control_quit = false, false, false, false
 			-- Keyboard
 		if love.keyboard.isDown('escape') or love.keyboard.isDown('q') then
-			love.event.push('quit')
+			control_quit = true
 		end
 		if love.keyboard.isDown('right') then 
-			ship.body:applyForce(ship.power, 0)
-			fire.visible = true
-			sounds.fire:play()
+			control_right = true
 	    elseif love.keyboard.isDown('left') then 
-	  		ship.body:applyForce(-ship.power, 0)
-			fire.visible = true
-			sounds.fire:play()
+	    	control_left = true
 	    end
 	  	if love.keyboard.isDown('up') then 
-			ship.body:applyForce(0, -ship.power)
-			fire.visible = true
-			sounds.fire:play()
+	  		control_up = true
 	    end
 	    	-- Mouse
 		if love.mouse.isDown(1) then
 			local x, y = love.mouse.getPosition()
 			-- Up
 			if x > width / 3 and x < width - (width / 3) and y < height / 3 then
-				ship.body:applyForce(0, -ship.power)
-				fire.visible = true
-				sounds.fire:play()
+	  			control_up = true
 			end
 			-- Left
 			if x < width / 3 then
-				ship.body:applyForce(-ship.power, 0)
-				fire.visible = true
-				sounds.fire:play()
+	    		control_left = true
 			elseif x > width - (width / 3) then
-				ship.body:applyForce(ship.power, 0)
-				fire.visible = true
-				sounds.fire:play()
+				-- Right	
+				control_right = true
 			end
+		end
+		-- Ship move
+		if control_up then
+			ship.body:applyForce(0, -ship.power)
+			fire.visible = true
+			sounds.fire:play()
+		end
+		if control_right then
+			ship.body:applyForce(ship.power, 0)
+			fire.visible = true
+			sounds.fire:play()
+		elseif control_left then
+			ship.body:applyForce(-ship.power, 0)
+			fire.visible = true
+			sounds.fire:play()
+		end
+		if control_quit then
+			love.event.push('quit')
 		end
 		-- Rotate asteroids 
 		for key, value in pairs(asteroids) do
