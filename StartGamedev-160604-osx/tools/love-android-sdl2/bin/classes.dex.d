@@ -1,9 +1,9 @@
 /Users/androsfenollosa/www/alunizaje/StartGamedev-160604-osx/tools/love-android-sdl2/bin/classes.dex : \
-/Users/androsfenollosa/www/alunizaje/StartGamedev-160604-osx/tools/love-android-sdl2/bin/classes/love/to/android1104173735/BuildConfig.class \
-/Users/androsfenollosa/www/alunizaje/StartGamedev-160604-osx/tools/love-android-sdl2/bin/classes/love/to/android1104173735/LtaActivity.class \
-/Users/androsfenollosa/www/alunizaje/StartGamedev-160604-osx/tools/love-android-sdl2/bin/classes/love/to/android1104173735/R$attr.class \
-/Users/androsfenollosa/www/alunizaje/StartGamedev-160604-osx/tools/love-android-sdl2/bin/classes/love/to/android1104173735/R$drawable.class \
-/Users/androsfenollosa/www/alunizaje/StartGamedev-160604-osx/tools/love-android-sdl2/bin/classes/love/to/android1104173735/R.class \
+/Users/androsfenollosa/www/alunizaje/StartGamedev-160604-osx/tools/love-android-sdl2/bin/classes/love/to/android1104181206/BuildConfig.class \
+/Users/androsfenollosa/www/alunizaje/StartGamedev-160604-osx/tools/love-android-sdl2/bin/classes/love/to/android1104181206/LtaActivity.class \
+/Users/androsfenollosa/www/alunizaje/StartGamedev-160604-osx/tools/love-android-sdl2/bin/classes/love/to/android1104181206/R$attr.class \
+/Users/androsfenollosa/www/alunizaje/StartGamedev-160604-osx/tools/love-android-sdl2/bin/classes/love/to/android1104181206/R$drawable.class \
+/Users/androsfenollosa/www/alunizaje/StartGamedev-160604-osx/tools/love-android-sdl2/bin/classes/love/to/android1104181206/R.class \
 /Users/androsfenollosa/www/alunizaje/StartGamedev-160604-osx/tools/love-android-sdl2/bin/classes/org/libsdl/app/DummyEdit.class \
 /Users/androsfenollosa/www/alunizaje/StartGamedev-160604-osx/tools/love-android-sdl2/bin/classes/org/libsdl/app/SDLActivity$1.class \
 /Users/androsfenollosa/www/alunizaje/StartGamedev-160604-osx/tools/love-android-sdl2/bin/classes/org/libsdl/app/SDLActivity$2.class \

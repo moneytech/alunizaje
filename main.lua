@@ -33,6 +33,8 @@ function love.load()
   	ship.shape = love.physics.newCircleShape(20) 
   	ship.fixture = love.physics.newFixture(ship.body, ship.shape, 1)
   	ship.fixture:setRestitution(0.9)
+  	ship.time_start = 1
+  	start_time = 0	
   	-- Fire
   	fire = {}
   	fire.img = love.graphics.newImage('assets/sprite/fire.png')
@@ -116,6 +118,7 @@ end
 
 -- UPDATE
 function love.update(dt)
+	start_time = dt + start_time
 	-- Sprite
 	if not explosion.finish and explosion.active then -- Explosion
 		explosion.time = explosion.time + dt
@@ -144,31 +147,33 @@ function love.update(dt)
 			fire.pos_frame = 1
 		end
 		-- Controls
-		control_up, control_right, control_left, control_quit = false, false, false, false
-			-- Keyboard
-		if love.keyboard.isDown('escape') or love.keyboard.isDown('q') then
-			control_quit = true
-		end
-		if love.keyboard.isDown('right') then 
-			control_right = true
-	    elseif love.keyboard.isDown('left') then 
-	    	control_left = true
-	    end
-	  	if love.keyboard.isDown('up') then 
-	  		control_up = true
-	    end
-	    	-- Mouse
-		if love.mouse.isDown(1) then
-			local x, y = love.mouse.getPosition()
-			-- Up
-			if x > button_up.x and x < button_up.x + button.img:getWidth() and y > button_up.y + camera.y and y < button_up.y + button.img:getHeight() + camera.y then
-	  			control_up = true
+		if start_time > ship.time_start then
+			control_up, control_right, control_left, control_quit = false, false, false, false
+				-- Keyboard
+			if love.keyboard.isDown('escape') or love.keyboard.isDown('q') then
+				control_quit = true
 			end
-			-- Right
-			if x > button_right.x and x < button_right.x + button.img:getWidth() and y > button_right.y + camera.y and y < button_right.y + button.img:getHeight() + camera.y then
-	  			control_right = true
-	  		elseif x > button_left.x and x < button_left.x + button.img:getWidth() and y > button_left.y + camera.y and y < button_left.y + button.img:getHeight() + camera.y then
-	  			control_left = true
+			if love.keyboard.isDown('right') then 
+				control_right = true
+		    elseif love.keyboard.isDown('left') then 
+		    	control_left = true
+		    end
+		  	if love.keyboard.isDown('up') then 
+		  		control_up = true
+		    end
+		    	-- Mouse
+			if love.mouse.isDown(1) then
+				local x, y = love.mouse.getPosition()
+				-- Up
+				if x > button_up.x and x < button_up.x + button.img:getWidth() and y > button_up.y + camera.y and y < button_up.y + button.img:getHeight() + camera.y then
+		  			control_up = true
+				end
+				-- Right
+				if x > button_right.x and x < button_right.x + button.img:getWidth() and y > button_right.y + camera.y and y < button_right.y + button.img:getHeight() + camera.y then
+		  			control_right = true
+		  		elseif x > button_left.x and x < button_left.x + button.img:getWidth() and y > button_left.y + camera.y and y < button_left.y + button.img:getHeight() + camera.y then
+		  			control_left = true
+				end
 			end
 		end
 		-- Ship move
@@ -291,35 +296,37 @@ function love.draw()
 		love.graphics.draw(explosion.img, explosion.frames[explosion.pos_frame], ship.body:getX(), ship.body:getY() + ship.img:getHeight() / 2)
 	end
 	-- Controls
-		-- Up
-    button_up.y = level.y + (camera.height / 4) + -camera.y
-	local button_frame_up = button.frames[1]
-	if control_up then
-		button_frame_up = button.frames[2]
-	end
-	love.graphics.draw(button.img, button_frame_up, button_up.x, button_up.y)
-	if debug then
-		love.graphics.rectangle('fill', button_up.x, button_up.y, button.img:getWidth(),  button.img:getHeight())
-	end
-		-- Right
-    button_right.y = button_up.y + (button.img:getHeight() + (button.img:getHeight() / 3))
-    local button_frame_right = button.frames[1]
-	if control_right then
-		button_frame_right = button.frames[2]
-	end
-	love.graphics.draw(button.img, button_frame_right, button_right.x + (button.img:getWidth() / (2 * button.num_frames)), button_right.y + button.img:getHeight(), 90 * math.pi / 180, 1, 1, button.img:getWidth() / 2, button.img:getHeight() / 2)
-	if debug then
-		love.graphics.rectangle('fill', button_right.x, button_right.y, button.img:getWidth(),  button.img:getHeight())
-	end
-		-- Left
-	button_left.y = button_right.y
-	local button_frame_left = button.frames[1]
-	if control_left then
-		button_frame_left = button.frames[2]
-	end
-	love.graphics.draw(button.img, button_frame_left, button_left.x + (button.img:getWidth() / (2 * button.num_frames)), button_left.y, 270 * math.pi / 180, 1, 1, button.img:getWidth() / 2, button.img:getHeight() / 2)
-	if debug then
-		love.graphics.rectangle('fill', button_left.x, button_left.y, button.img:getWidth(),  button.img:getHeight())
+	if start_time > ship.time_start then
+			-- Up
+	    button_up.y = level.y + (camera.height / 4) + -camera.y
+		local button_frame_up = button.frames[1]
+		if control_up then
+			button_frame_up = button.frames[2]
+		end
+		love.graphics.draw(button.img, button_frame_up, button_up.x, button_up.y)
+		if debug then
+			love.graphics.rectangle('fill', button_up.x, button_up.y, button.img:getWidth(),  button.img:getHeight())
+		end
+			-- Right
+	    button_right.y = button_up.y + (button.img:getHeight() + (button.img:getHeight() / 3))
+	    local button_frame_right = button.frames[1]
+		if control_right then
+			button_frame_right = button.frames[2]
+		end
+		love.graphics.draw(button.img, button_frame_right, button_right.x + (button.img:getWidth() / (2 * button.num_frames)), button_right.y + button.img:getHeight(), 90 * math.pi / 180, 1, 1, button.img:getWidth() / 2, button.img:getHeight() / 2)
+		if debug then
+			love.graphics.rectangle('fill', button_right.x, button_right.y, button.img:getWidth(),  button.img:getHeight())
+		end
+			-- Left
+		button_left.y = button_right.y
+		local button_frame_left = button.frames[1]
+		if control_left then
+			button_frame_left = button.frames[2]
+		end
+		love.graphics.draw(button.img, button_frame_left, button_left.x + (button.img:getWidth() / (2 * button.num_frames)), button_left.y, 270 * math.pi / 180, 1, 1, button.img:getWidth() / 2, button.img:getHeight() / 2)
+		if debug then
+			love.graphics.rectangle('fill', button_left.x, button_left.y, button.img:getWidth(),  button.img:getHeight())
+		end
 	end
 	-- Texts
 	if not play and not win then -- Game over
@@ -362,7 +369,7 @@ function restart(level_arg)
 		local temp_img = img_asteroide[math.random(1, table_length(img_asteroide))]
 		asteroids[i] = { 
 			x = math.random(0, canvas.width - temp_img:getWidth()), 
-			y = math.random(200, canvas.height - temp_img:getHeight()), 
+			y = math.random(window.height / 2, canvas.height - temp_img:getHeight()), 
 			speed = math.random(1, max_speed_asteroids), 
 			img = temp_img,
 			angle = math.random(0, 90)
@@ -372,6 +379,7 @@ function restart(level_arg)
   	ship.body = love.physics.newBody(world, (canvas.width / 2) - (ship.img:getWidth() / 2) , ship.y, 'dynamic')
 	win = false
 	play = true
+	start_time = 0
 end
 
 -- Controls
