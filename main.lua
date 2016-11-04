@@ -84,8 +84,14 @@ function love.load()
                  love.graphics.newQuad(button.frame_width * 1, 0, button.frame_width, button.frame_height, button.img:getWidth(), button.img:getHeight())
              }
     button_up = {}
-    button_up.x = window.width - button.img:getWidth()
+    button_up.x = window.width - (button.img:getWidth() / button.num_frames) - (button.img:getWidth() / (2 * button.num_frames))
     button_up.y = level.y + (camera.height / 4) + -camera.y
+	button_right = {}
+    button_right.x = button_up.x
+    button_right.y = button_up.y + (button.img:getHeight() / 3)
+	button_left = {}
+	button_left.x = button.img:getWidth() / (2 * button.num_frames)
+	button_left.y = button_right.y
 	-- Generates initial asteroids
 	asteroids_collision = 40
 	asteroids_collision_polygon = 8
@@ -158,6 +164,12 @@ function love.update(dt)
 			if x > button_up.x and x < button_up.x + button.img:getWidth() and y > button_up.y + camera.y and y < button_up.y + button.img:getHeight() + camera.y then
 	  			control_up = true
 			end
+			-- Right
+			if x > button_right.x and x < button_right.x + button.img:getWidth() and y > button_right.y + camera.y and y < button_right.y + button.img:getHeight() + camera.y then
+	  			control_right = true
+	  		elseif x > button_left.x and x < button_left.x + button.img:getWidth() and y > button_left.y + camera.y and y < button_left.y + button.img:getHeight() + camera.y then
+	  			control_left = true
+			end
 		end
 		-- Ship move
 		if control_up then
@@ -193,7 +205,7 @@ function love.update(dt)
 			local temp_img = img_asteroide[math.random(1, table_length(img_asteroide))]
 			asteroids[table_length(asteroids) + 1] = { 
 			x = canvas.width + temp_img:getWidth(), 
-			y = math.random(window.height / 2, canvas.height - temp_img:getHeight()), 
+			y = math.random(window.height, canvas.height - temp_img:getHeight()), 
 			speed = math.random(1, max_speed_asteroids), 
 			img = temp_img,
 			angle = math.random(0, 90)}
@@ -286,6 +298,29 @@ function love.draw()
 		button_frame_up = button.frames[2]
 	end
 	love.graphics.draw(button.img, button_frame_up, button_up.x, button_up.y)
+	if debug then
+		love.graphics.rectangle('fill', button_up.x, button_up.y, button.img:getWidth(),  button.img:getHeight())
+	end
+		-- Right
+    button_right.y = button_up.y + (button.img:getHeight() + (button.img:getHeight() / 3))
+    local button_frame_right = button.frames[1]
+	if control_right then
+		button_frame_right = button.frames[2]
+	end
+	love.graphics.draw(button.img, button_frame_right, button_right.x + (button.img:getWidth() / (2 * button.num_frames)), button_right.y + button.img:getHeight(), 90 * math.pi / 180, 1, 1, button.img:getWidth() / 2, button.img:getHeight() / 2)
+	if debug then
+		love.graphics.rectangle('fill', button_right.x, button_right.y, button.img:getWidth(),  button.img:getHeight())
+	end
+		-- Left
+	button_left.y = button_right.y
+	local button_frame_left = button.frames[1]
+	if control_left then
+		button_frame_left = button.frames[2]
+	end
+	love.graphics.draw(button.img, button_frame_left, button_left.x + (button.img:getWidth() / (2 * button.num_frames)), button_left.y, 270 * math.pi / 180, 1, 1, button.img:getWidth() / 2, button.img:getHeight() / 2)
+	if debug then
+		love.graphics.rectangle('fill', button_left.x, button_left.y, button.img:getWidth(),  button.img:getHeight())
+	end
 	-- Texts
 	if not play and not win then -- Game over
 		love.graphics.print(text_restart.text, (camera.width / 2) - (text_restart.size / 2), -camera.y + (camera.height / 2))
