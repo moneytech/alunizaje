@@ -1,3 +1,4 @@
+local start_time = 0
 -- LOAD
 function love.load()
 	-- Configuration
@@ -6,7 +7,7 @@ function love.load()
 	window = { width = width , height = height }
 	fullscreen = false
 	love.window.setMode(window.width, window.height, {resizable=true})
-	font_main = love.graphics.newFont('assets/font/main.ttf', 80) -- Font
+	font_main = love.graphics.newFont('assets/fonts/main.ttf', 80) -- Font
 	love.graphics.setFont(font_main)
 	text_restart = { text = 'You die' }
 	text_restart.size = font_main:getWidth(text_restart.text)
@@ -19,16 +20,17 @@ function love.load()
 	level = { num = 1, x = 50, y = 50, max = 20 }
 	love.window.setFullscreen(fullscreen, 'exclusive')
 	love.window.setTitle('Alunizaje')
-	background = { x = 0, y = 0, img = love.graphics.newImage('assets/img/background.png') }
+	background = { x = 0, y = 0, img = love.graphics.newImage('assets/sprites/background/background.png') }
 	canvas = { width = width, height = 2880 }
-	gravity = 2
 	moon_margin = 100
 	-- Physics
-	love.physics.setMeter(64) -- Height earth in meters
-  	world = love.physics.newWorld(0, gravity * 64, true) -- Make earth
+	world_meter = 64
+	gravity = 2
+	love.physics.setMeter(world_meter) -- Height earth in meters
+  	world = love.physics.newWorld(0, gravity * world_meter, true) -- Make earth
   	-- Ship
   	ship = { x = canvas.width / 2, y = 0 , power = 1000 , size_collition = 28, polygons_collition = 8 }
-  	ship.img = love.graphics.newImage('assets/img/ship.png')
+  	ship.img = love.graphics.newImage('assets/sprites/spaceship/body.png')
   	ship.body = love.physics.newBody(world, (canvas.width / 2) - (ship.img:getWidth() / 2) , ship.y, 'dynamic')
   	ship.shape = love.physics.newCircleShape(20) 
   	ship.fixture = love.physics.newFixture(ship.body, ship.shape, 1)
@@ -37,7 +39,7 @@ function love.load()
   	start_time = 0	
   	-- Fire
   	fire = {}
-  	fire.img = love.graphics.newImage('assets/sprite/fire.png')
+  	fire.img = love.graphics.newImage('assets/sprites/spaceship/fire.png')
   	fire.num_frames = 4
   	fire.pos_frame = 0
   	fire.visible = false
@@ -51,7 +53,7 @@ function love.load()
              }
     -- Explosion
   	explosion = {}
-  	explosion.img = love.graphics.newImage('assets/sprite/explosion.png')
+  	explosion.img = love.graphics.newImage('assets/sprites/spaceship/explosion.png')
   	explosion.num_frames = 11 
   	explosion.pos_frame = 1
   	explosion.active = false
@@ -77,7 +79,7 @@ function love.load()
 	-- Button
 	control_up, control_right, control_left, control_quit = false, false, false, false
   	button = {}
-  	button.img = love.graphics.newImage('assets/sprite/button.png')
+  	button.img = love.graphics.newImage('assets/sprites/hui/button.png')
   	button.num_frames = 2
   	button.frame_width = button.img:getWidth() / button.num_frames
   	button.frame_height = button.img:getHeight()
@@ -99,17 +101,17 @@ function love.load()
 	asteroids_collision_polygon = 8
 	max_speed_asteroids = 5
 	img_asteroide = {
-		love.graphics.newImage('assets/img/asteroid1.png'), 
-		love.graphics.newImage('assets/img/asteroid2.png'),
-		love.graphics.newImage('assets/img/asteroid3.png')
+		love.graphics.newImage('assets/sprites/asteroids/1.png'), 
+		love.graphics.newImage('assets/sprites/asteroids/2.png'), 
+		love.graphics.newImage('assets/sprites/asteroids/3.png') 
 	}
 	-- Audios
 	sounds = {}
-	sounds.die = love.audio.newSource('assets/audio/sound/die.wav', 'static')	
-	sounds.explosion = love.audio.newSource('assets/audio/sound/explosion_bit.wav', 'static')	
-	sounds.ambient_1 = love.audio.newSource('assets/audio/sound/ambient_1.wav')	
-	sounds.complete = love.audio.newSource('assets/audio/sound/complete.wav')	
-	sounds.fire = love.audio.newSource('assets/audio/sound/fire.wav', 'static')	
+	sounds.die = love.audio.newSource('assets/audios/sound/die.wav', 'static')	
+	sounds.explosion = love.audio.newSource('assets/audios/sound/explosion_bit.wav', 'static')	
+	sounds.ambient_1 = love.audio.newSource('assets/audios/sound/ambient_1.wav')	
+	sounds.complete = love.audio.newSource('assets/audios/sound/complete.wav')	
+	sounds.fire = love.audio.newSource('assets/audios/sound/fire.wav', 'static')	
 	sounds.ambient_1:setLooping(true)
 	sounds.ambient_1:play()
 
@@ -118,6 +120,11 @@ end
 
 -- UPDATE
 function love.update(dt)
+	-- Fix position ship
+	if ship.y < 0 then
+		ship.y = 0
+	end
+	-- Count time
 	start_time = dt + start_time
 	-- Sprite
 	if not explosion.finish and explosion.active then -- Explosion
@@ -147,33 +154,31 @@ function love.update(dt)
 			fire.pos_frame = 1
 		end
 		-- Controls
-		if start_time > ship.time_start then
-			control_up, control_right, control_left, control_quit = false, false, false, false
-				-- Keyboard
-			if love.keyboard.isDown('escape') or love.keyboard.isDown('q') then
-				control_quit = true
+		control_up, control_right, control_left, control_quit = false, false, false, false
+			-- Keyboard
+		if love.keyboard.isDown('escape') or love.keyboard.isDown('q') then
+			control_quit = true
+		end
+		if love.keyboard.isDown('right') then 
+			control_right = true
+	    elseif love.keyboard.isDown('left') then 
+	    	control_left = true
+	    end
+	  	if love.keyboard.isDown('up') then 
+	  		control_up = true
+	    end
+	    	-- Mouse
+		if love.mouse.isDown(1) then
+			local x, y = love.mouse.getPosition()
+			-- Up
+			if x > button_up.x and x < button_up.x + button.img:getWidth() and y > button_up.y + camera.y and y < button_up.y + button.img:getHeight() + camera.y then
+	  			control_up = true
 			end
-			if love.keyboard.isDown('right') then 
-				control_right = true
-		    elseif love.keyboard.isDown('left') then 
-		    	control_left = true
-		    end
-		  	if love.keyboard.isDown('up') then 
-		  		control_up = true
-		    end
-		    	-- Mouse
-			if love.mouse.isDown(1) then
-				local x, y = love.mouse.getPosition()
-				-- Up
-				if x > button_up.x and x < button_up.x + button.img:getWidth() and y > button_up.y + camera.y and y < button_up.y + button.img:getHeight() + camera.y then
-		  			control_up = true
-				end
-				-- Right
-				if x > button_right.x and x < button_right.x + button.img:getWidth() and y > button_right.y + camera.y and y < button_right.y + button.img:getHeight() + camera.y then
-		  			control_right = true
-		  		elseif x > button_left.x and x < button_left.x + button.img:getWidth() and y > button_left.y + camera.y and y < button_left.y + button.img:getHeight() + camera.y then
-		  			control_left = true
-				end
+			-- Right
+			if x > button_right.x and x < button_right.x + button.img:getWidth() and y > button_right.y + camera.y and y < button_right.y + button.img:getHeight() + camera.y then
+	  			control_right = true
+	  		elseif x > button_left.x and x < button_left.x + button.img:getWidth() and y > button_left.y + camera.y and y < button_left.y + button.img:getHeight() + camera.y then
+	  			control_left = true
 			end
 		end
 		-- Ship move
@@ -296,37 +301,35 @@ function love.draw()
 		love.graphics.draw(explosion.img, explosion.frames[explosion.pos_frame], ship.body:getX(), ship.body:getY() + ship.img:getHeight() / 2)
 	end
 	-- Controls
-	if start_time > ship.time_start then
-			-- Up
-	    button_up.y = level.y + (camera.height / 4) + -camera.y
-		local button_frame_up = button.frames[1]
-		if control_up then
-			button_frame_up = button.frames[2]
-		end
-		love.graphics.draw(button.img, button_frame_up, button_up.x, button_up.y)
-		if debug then
-			love.graphics.rectangle('fill', button_up.x, button_up.y, button.img:getWidth(),  button.img:getHeight())
-		end
-			-- Right
-	    button_right.y = button_up.y + (button.img:getHeight() + (button.img:getHeight() / 3))
-	    local button_frame_right = button.frames[1]
-		if control_right then
-			button_frame_right = button.frames[2]
-		end
-		love.graphics.draw(button.img, button_frame_right, button_right.x + (button.img:getWidth() / (2 * button.num_frames)), button_right.y + button.img:getHeight(), 90 * math.pi / 180, 1, 1, button.img:getWidth() / 2, button.img:getHeight() / 2)
-		if debug then
-			love.graphics.rectangle('fill', button_right.x, button_right.y, button.img:getWidth(),  button.img:getHeight())
-		end
-			-- Left
-		button_left.y = button_right.y
-		local button_frame_left = button.frames[1]
-		if control_left then
-			button_frame_left = button.frames[2]
-		end
-		love.graphics.draw(button.img, button_frame_left, button_left.x + (button.img:getWidth() / (2 * button.num_frames)), button_left.y, 270 * math.pi / 180, 1, 1, button.img:getWidth() / 2, button.img:getHeight() / 2)
-		if debug then
-			love.graphics.rectangle('fill', button_left.x, button_left.y, button.img:getWidth(),  button.img:getHeight())
-		end
+		-- Up
+    button_up.y = level.y + (camera.height / 4) + -camera.y
+	local button_frame_up = button.frames[1]
+	if control_up then
+		button_frame_up = button.frames[2]
+	end
+	love.graphics.draw(button.img, button_frame_up, button_up.x, button_up.y)
+	if debug then
+		love.graphics.rectangle('fill', button_up.x, button_up.y, button.img:getWidth(),  button.img:getHeight())
+	end
+		-- Right
+    button_right.y = button_up.y + (button.img:getHeight() + (button.img:getHeight() / 3))
+    local button_frame_right = button.frames[1]
+	if control_right then
+		button_frame_right = button.frames[2]
+	end
+	love.graphics.draw(button.img, button_frame_right, button_right.x + (button.img:getWidth() / (2 * button.num_frames)), button_right.y + button.img:getHeight(), 90 * math.pi / 180, 1, 1, button.img:getWidth() / 2, button.img:getHeight() / 2)
+	if debug then
+		love.graphics.rectangle('fill', button_right.x, button_right.y, button.img:getWidth(),  button.img:getHeight())
+	end
+		-- Left
+	button_left.y = button_right.y
+	local button_frame_left = button.frames[1]
+	if control_left then
+		button_frame_left = button.frames[2]
+	end
+	love.graphics.draw(button.img, button_frame_left, button_left.x + (button.img:getWidth() / (2 * button.num_frames)), button_left.y, 270 * math.pi / 180, 1, 1, button.img:getWidth() / 2, button.img:getHeight() / 2)
+	if debug then
+		love.graphics.rectangle('fill', button_left.x, button_left.y, button.img:getWidth(),  button.img:getHeight())
 	end
 	-- Texts
 	if not play and not win then -- Game over
@@ -359,7 +362,10 @@ function checkCircleCollision(circle1, circle2)
 	return distance <= circle1.radius + circle2.radius
 end
 
+-- Restart level
 function restart(level_arg)
+	sounds.fire:stop()
+  	ship.body = love.physics.newBody(world, (canvas.width / 2) - (ship.img:getWidth() / 2) , ship.img:getHeight(), 'dynamic')
 	num_asteroids = level_arg * 5
 	explosion.pos_frame = 1
 	explosion.active = false
@@ -376,7 +382,6 @@ function restart(level_arg)
 		}
 	end
 	-- Set ship position
-  	ship.body = love.physics.newBody(world, (canvas.width / 2) - (ship.img:getWidth() / 2) , ship.y, 'dynamic')
 	win = false
 	play = true
 	start_time = 0
@@ -389,4 +394,4 @@ end
 
 function love.mousereleased(key)
 	sounds.fire:stop()
-end
+end,

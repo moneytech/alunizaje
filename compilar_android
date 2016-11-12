@@ -1,4 +1,4 @@
-rm StartGamedev-160604-osx/game.love
-zip -9 -r StartGamedev-160604-osx/game.love main.lua assets
-/Users/androsfenollosa/www/alunizaje/StartGamedev-160604-osx/make-apk.command
-adb install StartGamedev-160604-osx/game.apk
+rm android/game.love
+zip -9 -r android/game.love main.lua assets
+/Users/androsfenollosa/www/alunizaje/android/make-apk.command
+adb install android/game.apk
