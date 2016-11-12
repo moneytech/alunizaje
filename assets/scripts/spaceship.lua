@@ -12,7 +12,7 @@ function spaceship.load(world)
 	spaceship.shape = love.physics.newCircleShape(20) 
 	spaceship.fixture = love.physics.newFixture(spaceship.body, spaceship.shape, 1)
 	spaceship.fixture:setRestitution(0.9)
-	local g = anim8.newGrid(98, 93, spaceship.img:getWidth(), spaceship.img:getHeight())
+	local g = anim8.newGrid(110, 103, spaceship.img:getWidth(), spaceship.img:getHeight())
   	spaceship.animation = anim8.newAnimation(g('1-1', 1), 0.1)
 end
 

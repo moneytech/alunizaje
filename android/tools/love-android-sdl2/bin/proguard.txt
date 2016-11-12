@@ -1,9 +1,9 @@
 # view AndroidManifest.xml #generated:45
--keep class love.to.android1112134304.DownloadActivity { <init>(...); }
+-keep class love.to.android1112203313.DownloadActivity { <init>(...); }
 
 # view AndroidManifest.xml #generated:17
--keep class love.to.android1112134304.DownloadService { <init>(...); }
+-keep class love.to.android1112203313.DownloadService { <init>(...); }
 
 # view AndroidManifest.xml #generated:18
--keep class love.to.android1112134304.LtaActivity { <init>(...); }
+-keep class love.to.android1112203313.LtaActivity { <init>(...); }
 
