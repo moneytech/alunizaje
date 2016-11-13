@@ -2,13 +2,11 @@ local anim8 = require 'assets/scripts/vendor/anim8'
 
 local spaceship = {}
 
-function spaceship.load(world)
-	local canvas = {}
-	canvas.width = 500
+function spaceship.load(game)
 	-- power origin 1000
-	spaceship = { x = canvas.width / 2, y = 0 , power = 400 , size_collition = 28, polygons_collition = 8 }
+	spaceship = { x = game.canvas.width / 2, y = 0 , power = 400 , size_collition = 28, polygons_collition = 8 }
 	spaceship.img = love.graphics.newImage('assets/sprites/spaceship/body.png')
-	spaceship.body = love.physics.newBody(world, (canvas.width / 2) - (spaceship.img:getWidth() / 2) , spaceship.y, 'dynamic')
+	spaceship.body = love.physics.newBody(game.world, (game.canvas.width / 2) - (spaceship.img:getWidth() / 2) , spaceship.y, 'dynamic')
 	spaceship.shape = love.physics.newCircleShape(20) 
 	spaceship.fixture = love.physics.newFixture(spaceship.body, spaceship.shape, 1)
 	spaceship.fixture:setRestitution(0.9)
