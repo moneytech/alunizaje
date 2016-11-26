@@ -16,15 +16,16 @@ end
 function love.update(dt)
 	game.world:update(dt)
 	background.update(dt)
-	asteroids.load(dt, game)
-	controls.update(dt)
+	asteroids.update(dt, game)
 	spaceship.update(dt)
+	controls.update(dt)
 end
 
 -- DRAW
 function love.draw()
 	background.draw()
 	spaceship.draw()
+	asteroids.draw()
 end
 
 -- CONTROLS
