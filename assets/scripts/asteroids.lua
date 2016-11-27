@@ -12,7 +12,7 @@ function asteroids.load(game)
 	}
 	asteroids.num = game.level * 5
 	asteroids.max_speed = 5
-	-- Generate asteroids
+	-- Make asteroids
 	asteroids.bodys = {}
 	for i = 1, asteroids.num do
 		make_asteroid(i, game, true)

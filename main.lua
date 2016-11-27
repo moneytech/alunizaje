@@ -2,6 +2,7 @@ local game = require 'assets/scripts/game'
 local background = require 'assets/scripts/background'
 local spaceship = require 'assets/scripts/spaceship'
 local asteroids = require 'assets/scripts/asteroids'
+local moon = require 'assets/scripts/moon'
 local controls = require 'assets/scripts/controls'
 local camera = require 'assets/scripts/camera'
 
@@ -11,6 +12,7 @@ function love.load()
 	camera.load(game)
 	background.load(game)
 	asteroids.load(game)
+	moon.load(game)
 	spaceship.load(game)
 end
 
@@ -19,6 +21,7 @@ function love.update(dt)
 	game.world:update(dt)
 	background.update(dt)
 	asteroids.update(dt, game)
+	moon.update()
 	spaceship.update(dt)
 	camera.update(game, spaceship)
 	controls.update(dt)
@@ -28,6 +31,7 @@ end
 function love.draw()
 	camera.gcam:draw(function(l,t,w,h)
 		background.draw()
+		moon.draw()
 		spaceship.draw()
 		asteroids.draw()
 	end)
