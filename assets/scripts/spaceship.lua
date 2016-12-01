@@ -28,9 +28,13 @@ function spaceship.load(game)
   	light.height = 66
 	g = anim8.newGrid(light.width, light.height, light.img:getWidth(), light.img:getHeight())
   	light.animation = anim8.newAnimation(g('1-' .. light.num_frames, 1), 0.05)
+  	-- Collision
+  	body.collision = {x=body.body:getX() + 40, y=body.body:getY()}
+  	game.collisions:add({name='spaceship'}, body.collision.x, body.collision.y, body.width, body.height)
+  	game.collisions:move({name='spaceship'}, body.collision.x, body.collision.y)
 end
 
-function spaceship.update(dt)
+function spaceship.update(dt, game)
 	-- Spaceship
 	body.animation_fire:update(dt)
 	press_button = false
@@ -54,9 +58,12 @@ function spaceship.update(dt)
 	if control_quit then
 		love.event.push('quit')
 	end
+	-- Collision
+  	--game.collisions:move({name='spaceship'}, body.collision.x, body.collision.y)
 end
 
 function spaceship.draw()
+	love.graphics.rectangle('fill', body.collision.x, body.collision.y, body.width, body.height)
 	light.animation:draw(light.img, light.x, light.y)
 	if press_button then
 		body.animation_fire:draw(body.img, body.body:getX(), body.body:getY())

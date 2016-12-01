@@ -22,7 +22,7 @@ function love.update(dt)
 	background.update(dt)
 	asteroids.update(dt, game)
 	moon.update()
-	spaceship.update(dt)
+	spaceship.update(dt, game)
 	camera.update(game, spaceship)
 	controls.update(dt)
 end
