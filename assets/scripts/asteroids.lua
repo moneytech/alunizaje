@@ -29,7 +29,7 @@ function asteroids.update(dt, game)
 	for key, asteroid in pairs(asteroids.bodys) do
 		if asteroid.x + asteroid.img:getWidth() < 0 then
 			table.remove(asteroids.bodys, key)
-			game.collisions:remove('asteroid' .. key)
+			remove_collision(key, game)
 		end
 	end
 	-- Create asteroids
@@ -57,6 +57,7 @@ function make_asteroid(pos, game, x_random)
 		asteroids.bodys[pos].x = math.random(0, game.canvas.width - temp_img:getWidth())
 	end
 	-- Collision
+	remove_collision(pos, game)
 	game.collisions:add(
 		'asteroid' .. pos, 
 		asteroids.bodys[pos].x, 
@@ -64,6 +65,12 @@ function make_asteroid(pos, game, x_random)
 		asteroids.bodys[pos].img:getWidth(), 
 		asteroids.bodys[pos].img:getHeight()
 	)
+end
+
+function remove_collision(pos, game)
+	if game.collisions:hasItem('asteroid' .. pos) then
+		game.collisions:remove('asteroid' .. pos)
+	end
 end
 
 return asteroids
