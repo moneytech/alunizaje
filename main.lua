@@ -14,6 +14,7 @@ function love.load()
 	asteroids.load(game)
 	moon.load(game)
 	spaceship.load(game)
+	controls.load(game)
 end
 
 -- UPDATE
@@ -35,6 +36,7 @@ function love.draw()
 		spaceship.draw()
 		asteroids.draw()
 	end)
+	controls.draw()
 end
 
 -- CONTROLS

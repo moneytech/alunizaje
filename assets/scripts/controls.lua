@@ -1,5 +1,12 @@
 local controls = {}
 
+function controls.load(game)
+	controls.padding = 50
+	controls.img_right = love.graphics.newImage('assets/sprites/hui/button.png')
+	controls.right_x = game.window.width - controls.img_right:getWidth() - controls.padding
+	controls.right_y = game.window.height - controls.img_right:getHeight() - controls.padding
+end
+
 function controls.update(dt)
 	control_up, control_right, control_left, control_quit = false, false, false, false
 		-- Keyboard
@@ -28,6 +35,10 @@ function controls.update(dt)
   			control_left = true
 		end
 	end
+end
+
+function controls.draw()
+	love.graphics.draw(controls.img_right, controls.right_x, controls.right_y)
 end
 
 return controls

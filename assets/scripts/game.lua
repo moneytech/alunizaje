@@ -1,5 +1,4 @@
 local game = {}
-local bump = require 'assets/scripts/vendor/bump'
 
 function game.load()
 	-- Configuration
@@ -15,7 +14,7 @@ function game.load()
 	love.physics.setMeter(world_meter) -- Height earth in meters
   	game.world = love.physics.newWorld(0, gravity * world_meter, true) -- Make earth
   	-- Collisions
-  	game.collisions = bump.newWorld(50)
+  	--game.collisions = HC.new(150)
 end
 
 return game
