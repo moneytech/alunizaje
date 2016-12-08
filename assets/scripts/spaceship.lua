@@ -31,6 +31,19 @@ function spaceship.load(game)
   	light.height = 66
 	g = anim8.newGrid(light.width, light.height, light.img:getWidth(), light.img:getHeight())
   	light.animation = anim8.newAnimation(g('1-' .. light.num_frames, 1), 0.05)
+  	-- Explosion
+  	explosion = {
+		img = love.graphics.newImage('assets/sprites/spaceship/explosion.png'),
+		num_frames = 10,
+		speed = 0.05,
+		x = -game.canvas.width,
+		y = -game.canvas.height
+  	}
+	g = anim8.newGrid(explosion.img:getWidth() / explosion.num_frames, explosion.img:getHeight(), explosion.img:getWidth(), explosion.img:getHeight())
+  	explosion.animation = anim8.newAnimation(g('1-' .. explosion.num_frames, 1), explosion.speed, 'pauseAtEnd')
+  	explosion.animation:pause()
+  	explosion.claim_x = 45
+  	explosion.claim_y = 40
   	-- Collision
 	body.collision = {}
 	body.collision.claim = 79
@@ -64,6 +77,8 @@ function spaceship.update(dt, game)
 	light.animation:update(dt)
   	light.x = body.body:getX() + 43
   	light.y = body.body:getY() - 15
+  	-- Explosion
+	explosion.animation:update(dt)
 	-- Controls
 	if control_up then
 		body.body:applyForce(0, -body.power)
@@ -84,7 +99,13 @@ function spaceship.update(dt, game)
 	body.collision.hc:moveTo(body.body:getX() + body.collision.claim, body.body:getY() + body.collision.claim)
 		-- Check for collisions
     for shape, delta in pairs(HC.collisions(body.collision.hc)) do
+    	game.play = false
+    	explosion.x, explosion.y, explosion.enable = body.body:getX() - explosion.claim_x, body.body:getY() - explosion.claim_y, true
+    	explosion.animation:resume()
     end
+    if not game.play then
+		body.body:setLinearVelocity(0, 0)
+	end
     	-- Check game limits 
 	if body.body:getY() <= 0 then -- Top game
 		x, y = body.body:getLinearVelocity()
@@ -100,13 +121,19 @@ function spaceship.update(dt, game)
 	end
 end
 
-function spaceship.draw()
-	light.animation:draw(light.img, light.x, light.y)
-	if press_button then
-		body.animation_fire:draw(body.img, body.body:getX(), body.body:getY())
-	else
-		body.animation_stop:draw(body.img, body.body:getX(), body.body:getY())
+function spaceship.draw(game)
+	if game.play then
+		-- Lignt
+		light.animation:draw(light.img, light.x, light.y)
+		-- Spaceship
+		if press_button then
+			body.animation_fire:draw(body.img, body.body:getX(), body.body:getY())
+		else
+			body.animation_stop:draw(body.img, body.body:getX(), body.body:getY())
+		end
 	end
+	-- Explosion
+	explosion.animation:draw(explosion.img, explosion.x, explosion.y)
 	-- Collision
 	if collision_debug then
 		body.collision.hc:draw('fill')

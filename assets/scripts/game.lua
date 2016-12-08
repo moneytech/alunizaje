@@ -8,6 +8,7 @@ function game.load()
 	game.canvas = { width = width, height = 2880 }
 	love.window.setMode(game.window.width, game.window.height)
 	game.level = 1
+	game.play = true
 	-- Physics
 	local world_meter = 64
 	local gravity = 2
