@@ -80,18 +80,18 @@ function spaceship.update(dt, game)
   	-- Explosion
 	explosion.animation:update(dt)
 	-- Controls
-	if control_up then
+	if CONTROL_UP then
 		body.body:applyForce(0, -body.power)
 		press_button = true
 	end
-	if control_right then
+	if CONTROL_RIGHT then
 		body.body:applyForce(body.power, 0)
 		press_button = true
-	elseif control_left then
+	elseif CONTROL_LEFT then
 		body.body:applyForce(-body.power, 0)
 		press_button = true
 	end
-	if control_quit then
+	if CONTROL_QUIT then
 		love.event.push('quit')
 	end
 	-- Collision

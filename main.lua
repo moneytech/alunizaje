@@ -40,10 +40,18 @@ function love.draw()
 end
 
 -- CONTROLS
-function love.keyreleased(key)
-	-- sounds.keyreleased(key)
+function love.keypressed(key, scancode, isrepeat)
+	controls.keypressed(key, scancode, isrepeat)
 end
 
-function love.mousereleased(key)
-	-- sounds.mousereleased(key)
+function love.keyreleased(key, scancode)
+	controls.keyreleased(key, scancode)
+end
+
+function love.mousepressed(x, y, button, istouch)
+	controls.mousepressed(x, y, button, istouch)
+end
+
+function love.mousereleased(x, y, button, istouch)
+	controls.mousereleased(x, y, button, istouch)
 end

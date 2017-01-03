@@ -14,8 +14,6 @@ function game.load()
 	local gravity = 2
 	love.physics.setMeter(world_meter) -- Height earth in meters
   	game.world = love.physics.newWorld(0, gravity * world_meter, true) -- Make earth
-  	-- Collisions
-  	--game.collisions = HC.new(150)
 end
 
 return game
