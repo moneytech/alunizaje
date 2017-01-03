@@ -10,6 +10,7 @@ function game.load()
 	game.level = 1
 	game.play = true
 	-- Physics
+	DEBUG = true
 	local world_meter = 64
 	local gravity = 2
 	love.physics.setMeter(world_meter) -- Height earth in meters

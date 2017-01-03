@@ -19,6 +19,9 @@ end
 
 -- UPDATE
 function love.update(dt)
+	if DEBUG then
+		require('assets/scripts/vendor/lovebird').update()
+	end
 	game.world:update(dt)
 	background.update(dt)
 	asteroids.update(dt, game)
