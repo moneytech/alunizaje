@@ -28,7 +28,6 @@ function love.update(dt)
 	moon.update()
 	spaceship.update(dt, game)
 	camera.update(game, spaceship)
-	controls.update(dt)
 end
 
 -- DRAW

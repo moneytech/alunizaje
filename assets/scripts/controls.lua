@@ -21,11 +21,6 @@ function controls.load(game)
 	controls.new_button('button_up', up_x, up_y, img_button_up)
 end
 
-function controls.update(dt)
-	if love.mouse.isDown(1) then
-	end
-end
-
 function controls.draw()
     for key, button in pairs(BUTTONS) do
 		button.animation:draw(button.img, button.x, button.y)
