@@ -71,4 +71,15 @@ function tools.print_r(t)
     print()
 end
 
+function tools.distance(x1, y1, x2, y2)
+  local dx = x1 - x2
+  local dy = y1 - y2
+  return math.sqrt ( dx * dx + dy * dy )
+end
+
+function tools.circle_position(angle, radius, x_center, y_center)
+    local angle_temp = angle * math.pi / 180
+    return x_center + radius * math.cos(angle_temp), y_center + radius * math.sin(angle_temp)
+end
+
 return tools

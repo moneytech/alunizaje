@@ -3,6 +3,8 @@ local game = {}
 function game.load()
 	-- Configuration
 	math.randomseed(os.time())
+	PADDING = 50
+	game.lifes = 3
 	local width, height = love.window.getDesktopDimensions( display )
 	game.window = { width = width , height = height }
 	game.canvas = { width = width, height = 2880 }

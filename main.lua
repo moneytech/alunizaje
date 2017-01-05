@@ -3,7 +3,8 @@ local background = require 'assets/scripts/background'
 local spaceship = require 'assets/scripts/spaceship'
 local asteroids = require 'assets/scripts/asteroids'
 local moon = require 'assets/scripts/moon'
-local controls = require 'assets/scripts/controls'
+local controls = require 'assets/scripts/gui/controls'
+local life = require 'assets/scripts/gui/life'
 local camera = require 'assets/scripts/camera'
 
 -- LOAD
@@ -15,6 +16,7 @@ function love.load()
 	moon.load(game)
 	spaceship.load(game)
 	controls.load(game)
+	life.load(game)
 end
 
 -- UPDATE
@@ -27,6 +29,7 @@ function love.update(dt)
 	asteroids.update(dt, game)
 	moon.update()
 	spaceship.update(dt, game)
+	life.update(dt, game)
 	camera.update(game, spaceship)
 end
 
@@ -39,6 +42,7 @@ function love.draw()
 		asteroids.draw()
 	end)
 	controls.draw()
+	life.draw()
 end
 
 -- CONTROLS
