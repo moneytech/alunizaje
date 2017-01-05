@@ -25,6 +25,7 @@ function love.update(dt)
 		require('assets/scripts/vendor/lovebird').update()
 	end
 	game.world:update(dt)
+	game.update(dt)
 	background.update(dt)
 	asteroids.update(dt, game)
 	moon.update()

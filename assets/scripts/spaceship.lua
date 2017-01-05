@@ -100,6 +100,7 @@ function spaceship.update(dt, game)
 		-- Check for collisions
     for shape, delta in pairs(HC.collisions(body.collision.hc)) do
     	game.play = false
+    	game.die = true
     	explosion.x, explosion.y, explosion.enable = body.body:getX() - explosion.claim_x, body.body:getY() - explosion.claim_y, true
     	explosion.animation:resume()
     end

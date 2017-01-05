@@ -31,17 +31,37 @@ function life.load(game)
 		width = 10,
 		color = {0, 0, 0},
 		angle = 230,
-		move_up = false
+		move_up = false,
+		vel = 1
   	}
   	life.indicator.radius = tools.distance(life.indicator.x_shaft, life.indicator.y_shaft, life.indicator.x_target, life.indicator.y_target)
   	love.graphics.setLineWidth(life.indicator.width)
+  	life.indicator.limits = {}
+	life.indicator.limits[2] = {
+		min = 260,
+		max = 270
+	}
+	life.indicator.limits[3] = {
+		min = 230,
+		max = 240
+	}
 end
 
 function life.update(dt, game)
 	life.top.animation:update(dt) 
-	-- 1 230 240
-	if game.life == 3 then
-	end	
+	-- Direction
+	if life.indicator.limits[game.lifes].max < life.indicator.angle then
+		life.indicator.move_up = false
+	elseif life.indicator.limits[game.lifes].min > life.indicator.angle then 
+		life.indicator.move_up = true
+	end
+	-- Increment
+	if life.indicator.move_up then
+		life.indicator.angle = life.indicator.angle + life.indicator.vel
+	else
+		life.indicator.angle = life.indicator.angle - life.indicator.vel
+	end
+	-- Calculate pos indicator
   	life.indicator.x_target, life.indicator.y_target = tools.circle_position(life.indicator.angle, life.indicator.radius, life.indicator.x_shaft, life.indicator.y_shaft)
 end
 
