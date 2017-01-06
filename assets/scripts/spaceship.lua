@@ -10,9 +10,17 @@ function spaceship.load(game)
 	body = { 
 		x = 0, 
 		y = 0,
-		power = 400,
+		power = 200,
 		size_collition = 28,
-		polygons_collition = 8 
+		polygons_collition = 8,
+		visible = true,
+		blink = {
+			active = false,
+			num_repeat = 5,
+			duration = 0.05,
+			num_count = 0,
+			time = 0
+		}
 	}
 	body.width = 156
 	body.height = 143
@@ -134,6 +142,25 @@ function spaceship.update(dt, game)
 		x, y = body.body:getLinearVelocity()
 		body.body:setLinearVelocity(-x, y)
 	end
+	-- Blink
+	if body.blink.active then
+		body.blink.time = body.blink.time + dt
+		if body.blink.time >= body.blink.duration then
+			body.blink.time = 0
+			if body.visible then
+				body.visible = false
+				if body.blink.num_count < body.blink.num_repeat then
+					body.blink.num_count = body.blink.num_count + 1
+				else
+					body.blink.num_count = 0
+					body.blink.active = false
+					body.visible = true
+				end
+			else
+				body.visible = true
+			end
+		end
+	end
 	-- Check if this ingame
 	local x, y = body.body:getPosition()
 	if y < 0 then
@@ -151,12 +178,13 @@ function spaceship.update(dt, game)
 			body.body:setPosition(body.pos_center_x, y)
 			game.play = true
 			game.die = false
+			body.blink.active = true
 		end
 	end
 end
 
 function spaceship.draw(game)
-	if game.play then
+	if game.play and body.visible then
 		-- Lignt
 		light.animation:draw(light.img, light.x, light.y)
 		-- Spaceship
