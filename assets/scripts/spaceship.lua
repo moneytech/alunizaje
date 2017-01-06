@@ -7,13 +7,20 @@ spaceship.y = 0
 local press_button = false
 
 function spaceship.load(game)
-	-- power origin 1000
-	body = { x = game.canvas.width / 2, y = 0 , power = 400 , size_collition = 28, polygons_collition = 8 }
+	body = { 
+		x = 0, 
+		y = 0,
+		power = 400,
+		size_collition = 28,
+		polygons_collition = 8 
+	}
 	body.width = 156
 	body.height = 143
+	body.pos_center_x = (game.canvas.width / 2) - (body.width / 2)
+	body.x = body.pos_center_x
 	body.img = love.graphics.newImage('assets/sprites/spaceship/body.png')
 	body.num_frames = 5
-	body.body = love.physics.newBody(game.world, (game.canvas.width / 2) - (body.img:getWidth() / 2) , body.y, 'dynamic')
+	body.body = love.physics.newBody(game.world, body.x , body.y, 'dynamic')
 	body.shape = love.physics.newCircleShape(20) 
 	body.fixture = love.physics.newFixture(body.body, body.shape, 1)
 	body.fixture:setRestitution(0.9)
@@ -99,10 +106,17 @@ function spaceship.update(dt, game)
 	body.collision.hc:moveTo(body.body:getX() + body.collision.claim, body.body:getY() + body.collision.claim)
 		-- Check for collisions
     for shape, delta in pairs(HC.collisions(body.collision.hc)) do
-    	game.play = false
-    	game.die = true
-    	explosion.x, explosion.y, explosion.enable = body.body:getX() - explosion.claim_x, body.body:getY() - explosion.claim_y, true
-    	explosion.animation:resume()
+    	if game.die == false then
+    		-- Lose life
+    		if game.lifes > 1 then
+				game.lifes = game.lifes - 1
+			end
+			-- Die
+	    	game.die = true
+	    	game.play = false
+	    	explosion.x, explosion.y, explosion.enable = body.body:getX() - explosion.claim_x, body.body:getY() - explosion.claim_y, true
+	    	explosion.animation:resume()
+    	end
     end
     if not game.play then
 		body.body:setLinearVelocity(0, 0)
@@ -119,6 +133,25 @@ function spaceship.update(dt, game)
 	if body.body:getX() + (body.collision.claim / 2) < 0 then -- Left game
 		x, y = body.body:getLinearVelocity()
 		body.body:setLinearVelocity(-x, y)
+	end
+	-- Check if this ingame
+	local x, y = body.body:getPosition()
+	if y < 0 then
+		body.body:setPosition(x, 0)
+	end 
+	if y > game.canvas.height then
+		game.play = false
+	end
+	-- Restart position
+	if not game.play then
+		body.body:setLinearVelocity(0, -1000)
+		if y <= 0 then
+			local y = 0
+			body.body:setLinearVelocity(0, 0)
+			body.body:setPosition(body.pos_center_x, y)
+			game.play = true
+			game.die = false
+		end
 	end
 end
 

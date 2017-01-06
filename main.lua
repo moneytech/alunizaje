@@ -36,6 +36,7 @@ end
 
 -- DRAW
 function love.draw()
+	game.draw()
 	camera.gcam:draw(function(l,t,w,h)
 		background.draw()
 		moon.draw()
@@ -43,7 +44,7 @@ function love.draw()
 		asteroids.draw()
 	end)
 	controls.draw()
-	life.draw()
+	life.draw(game)
 end
 
 -- CONTROLS

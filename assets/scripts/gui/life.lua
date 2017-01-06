@@ -30,29 +30,27 @@ function life.load(game)
 		y_target = life.top.y + (life.top.img:getHeight() / 2),
 		width = 10,
 		color = {0, 0, 0},
-		angle = 230,
+		angle = 300,
 		move_up = false,
-		vel = 1
+		vel = 0.3,
+  		limits = {310, 270, 230},
+  		angle_variation = 3
   	}
   	life.indicator.radius = tools.distance(life.indicator.x_shaft, life.indicator.y_shaft, life.indicator.x_target, life.indicator.y_target)
   	love.graphics.setLineWidth(life.indicator.width)
-  	life.indicator.limits = {}
-	life.indicator.limits[2] = {
-		min = 260,
-		max = 270
-	}
-	life.indicator.limits[3] = {
-		min = 230,
-		max = 240
+	-- Filter red
+	life.filter = {
+		color = {255, 255, 255},
+		temp_num_lifes = game.lifes
 	}
 end
 
 function life.update(dt, game)
 	life.top.animation:update(dt) 
 	-- Direction
-	if life.indicator.limits[game.lifes].max < life.indicator.angle then
+	if life.indicator.limits[game.lifes] < life.indicator.angle then
 		life.indicator.move_up = false
-	elseif life.indicator.limits[game.lifes].min > life.indicator.angle then 
+	elseif life.indicator.limits[game.lifes] - life.indicator.angle_variation > life.indicator.angle then 
 		life.indicator.move_up = true
 	end
 	-- Increment
@@ -63,17 +61,28 @@ function life.update(dt, game)
 	end
 	-- Calculate pos indicator
   	life.indicator.x_target, life.indicator.y_target = tools.circle_position(life.indicator.angle, life.indicator.radius, life.indicator.x_shaft, life.indicator.y_shaft)
+  	-- Filter
+  	if life.filter.temp_num_lifes ~= game.lifes then
+  		life.filter.color = {255, 0, 0}
+  		life.filter.temp_num_lifes = game.lifes
+	end
+  	for key, color in pairs(life.filter.color) do
+  		if color < 255 then
+  			life.filter.color[key] = life.filter.color[key] + 1
+  		end
+  	end
 end
 
-function life.draw()
+function life.draw(game)
 	-- Background top
 	life.top.animation:draw(life.top.img, life.top.x, life.top.y)
 	-- Indicator
   	love.graphics.setColor(life.indicator.color)
 	love.graphics.line(life.indicator.x_shaft, life.indicator.y_shaft, life.indicator.x_target, life.indicator.y_target)
-  	love.graphics.setColor(255, 255, 255)
+	-- Filter
+  	love.graphics.setColor(life.filter.color)
 	-- Background down
-	love.graphics.draw(life.down.img, life.down.x, life.down.y)
+	love.graphics.draw(life.down.img, life.down.x, life.down.y - 1)
 end
 
 return life

@@ -21,9 +21,11 @@ function game.load()
 end
 
 function game.update(dt)
-	if game.die then
-		game.lifes = game.lifes - 1
-		game.die = false
+end
+
+function game.draw()
+	if DEBUG then
+		love.graphics.print('FPS: ' .. love.timer.getFPS(), 50, 50)
 	end
 end
 
